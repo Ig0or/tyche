@@ -1,11 +1,12 @@
 package ioc_config
 
 import (
+	"github.com/Ig0or/tyche/src/adapters/repositories/account"
+	"github.com/Ig0or/tyche/src/application/ports/repositories/account"
 	"github.com/Ig0or/tyche/src/externals/infrastructure/database_config"
 	"github.com/Ig0or/tyche/src/externals/infrastructure/logger_config"
-	"github.com/Ig0or/tyche/src/externals/ports/infrastructure/i_database_config"
-	"github.com/Ig0or/tyche/src/externals/ports/infrastructure/i_logger_config"
-	"github.com/Ig0or/tyche/src/server"
+	"github.com/Ig0or/tyche/src/externals/ports/i_infrastructure/i_database_config"
+	"github.com/Ig0or/tyche/src/externals/ports/i_infrastructure/i_logger_config"
 	"go.uber.org/dig"
 )
 
@@ -16,30 +17,22 @@ type Dependency struct {
 }
 
 type DigIocConfig struct {
+	container *dig.Container
 }
 
 func NewDigIocConfig() *DigIocConfig {
-	return &DigIocConfig{}
-}
-
-func (iocConfig *DigIocConfig) BuildIOCContainer() {
 	container := dig.New()
 
-	iocConfig.loadProviders(container)
+	digIoc := &DigIocConfig{container: container}
 
-	err := container.Invoke(server.NewLero)
-
-	if err != nil {
-		panic("Fail to invoke server using IOC container: " + err.Error())
-	}
-
+	return digIoc
 }
 
-func (iocConfig *DigIocConfig) loadProviders(container *dig.Container) {
-	dependencies := iocConfig.createDependencies()
+func (ioc *DigIocConfig) LoadProviders() {
+	dependencies := ioc.createDependencies()
 
 	for _, dependency := range dependencies {
-		err := container.Provide(dependency.Constructor, dig.As(dependency.Interface), dig.Name(dependency.Name))
+		err := ioc.container.Provide(dependency.Constructor, dig.As(dependency.Interface), dig.Name(dependency.Name))
 
 		if err != nil {
 			panic("Fail to build IOC container: " + err.Error())
@@ -48,15 +41,24 @@ func (iocConfig *DigIocConfig) loadProviders(container *dig.Container) {
 
 }
 
-func (iocConfig *DigIocConfig) createDependencies() []Dependency {
+func (ioc *DigIocConfig) Invoke(function func()) {
+	err := ioc.container.Invoke(function)
+
+	if err != nil {
+		panic("Fail to invoke function inside IOC container: " + err.Error())
+	}
+}
+
+func (ioc *DigIocConfig) createDependencies() []Dependency {
 	var dependencies []Dependency
 
-	dependencies = iocConfig.provideInfrastructureDependencies(dependencies)
+	dependencies = ioc.provideInfrastructureDependencies(dependencies)
+	dependencies = ioc.provideRepositoryDependencies(dependencies)
 
 	return dependencies
 }
 
-func (iocConfig *DigIocConfig) provideInfrastructureDependencies(dependencies []Dependency) []Dependency {
+func (ioc *DigIocConfig) provideInfrastructureDependencies(dependencies []Dependency) []Dependency {
 	infrastructureDependencies := []Dependency{
 		{
 			Constructor: logger_config.NewLoggerConfig,
@@ -71,6 +73,22 @@ func (iocConfig *DigIocConfig) provideInfrastructureDependencies(dependencies []
 	}
 
 	for _, dependency := range infrastructureDependencies {
+		dependencies = append(dependencies, dependency)
+	}
+
+	return dependencies
+}
+
+func (ioc *DigIocConfig) provideRepositoryDependencies(dependencies []Dependency) []Dependency {
+	repositoryDependencies := []Dependency{
+		{
+			Constructor: repositories.NewAccountRepository,
+			Interface:   new(i_repositories.IAccountRepository),
+			Name:        "AccountRepository",
+		},
+	}
+
+	for _, dependency := range repositoryDependencies {
 		dependencies = append(dependencies, dependency)
 	}
 
