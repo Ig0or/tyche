@@ -1,6 +1,6 @@
-package i_logger_config
+package i_logger
 
-type ILoggerConfig interface {
+type ILogger interface {
 	Info(format string, values ...interface{})
 	Error(format string, values ...interface{})
 	Fatal(values ...interface{})

@@ -1,9 +1,9 @@
-package i_database_config
+package i_database
 
 import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type IDatabaseConfig interface {
+type IDatabase interface {
 	GetConnection() *pgxpool.Pool
 }

@@ -1,4 +1,4 @@
-package logger_config
+package logger
 
 import (
 	"io"
@@ -6,18 +6,18 @@ import (
 	"os"
 )
 
-type LoggerConfig struct {
+type Logger struct {
 	info  *log.Logger
 	err   *log.Logger
 	fatal *log.Logger
 }
 
-func NewLoggerConfig() *LoggerConfig {
+func NewLogger() *Logger {
 	writer := io.MultiWriter(os.Stdout)
 
 	flags := log.Ldate | log.Ltime | log.Lshortfile
 
-	Logger := &LoggerConfig{
+	Logger := &Logger{
 		info:  log.New(writer, "INFO: ", flags),
 		err:   log.New(writer, "ERROR: ", flags),
 		fatal: log.New(writer, "FATAL: ", flags),
@@ -26,14 +26,14 @@ func NewLoggerConfig() *LoggerConfig {
 	return Logger
 }
 
-func (logger *LoggerConfig) Info(format string, values ...interface{}) {
+func (logger *Logger) Info(format string, values ...interface{}) {
 	logger.info.Printf(format, values...)
 }
 
-func (logger *LoggerConfig) Error(format string, values ...interface{}) {
+func (logger *Logger) Error(format string, values ...interface{}) {
 	logger.err.Printf(format, values...)
 }
 
-func (logger *LoggerConfig) Fatal(values ...interface{}) {
+func (logger *Logger) Fatal(values ...interface{}) {
 	logger.fatal.Fatalln(values...)
 }
