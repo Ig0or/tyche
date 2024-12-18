@@ -2,7 +2,7 @@ package database
 
 import (
 	"context"
-	"github.com/Ig0or/tyche/src/externals/ports/i_infrastructure/i_logger"
+	"github.com/Ig0or/tyche/src/externals/ports/infrastructure/logger_interface"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/dig"
 	"os"
@@ -11,13 +11,13 @@ import (
 type PostgresDatabase struct {
 	connectionPool *pgxpool.Pool
 
-	logger i_logger.ILogger
+	logger logger_interface.LoggerInterface
 }
 
 type PostgresDatabaseDependencies struct {
 	dig.In
 
-	Logger i_logger.ILogger `name:"Logger"`
+	Logger logger_interface.LoggerInterface `name:"Logger"`
 }
 
 func NewPostgresDatabase(dependencies PostgresDatabaseDependencies) *PostgresDatabase {

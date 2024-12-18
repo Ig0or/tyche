@@ -5,8 +5,10 @@ import (
 	"github.com/Ig0or/tyche/src/application/ports/repositories/account"
 	"github.com/Ig0or/tyche/src/externals/infrastructure/database"
 	"github.com/Ig0or/tyche/src/externals/infrastructure/logger"
-	"github.com/Ig0or/tyche/src/externals/ports/i_infrastructure/i_database"
-	"github.com/Ig0or/tyche/src/externals/ports/i_infrastructure/i_logger"
+	"github.com/Ig0or/tyche/src/externals/ports/infrastructure/database_interface"
+	"github.com/Ig0or/tyche/src/externals/ports/infrastructure/logger_interface"
+	"github.com/Ig0or/tyche/src/externals/ports/router_interface"
+	"github.com/Ig0or/tyche/src/externals/routers"
 	"go.uber.org/dig"
 )
 
@@ -62,12 +64,12 @@ func (ioc *DigIoc) provideInfrastructureDependencies(dependencies []Dependency) 
 	infrastructureDependencies := []Dependency{
 		{
 			Implementation: logger.NewLogger,
-			Interface:      new(i_logger.ILogger),
+			Interface:      new(logger_interface.LoggerInterface),
 			Name:           "Logger",
 		},
 		{
 			Implementation: database.NewPostgresDatabase,
-			Interface:      new(i_database.IDatabase),
+			Interface:      new(database_interface.DatabaseInterface),
 			Name:           "PostgresDatabase",
 		},
 	}
@@ -83,7 +85,7 @@ func (ioc *DigIoc) provideRepositoryDependencies(dependencies []Dependency) []De
 	repositoryDependencies := []Dependency{
 		{
 			Implementation: repositories.NewAccountRepository,
-			Interface:      new(i_repositories.IAccountRepository),
+			Interface:      new(repositories_interface.AccountRepositoryInterface),
 			Name:           "AccountRepository",
 		},
 	}
