@@ -10,8 +10,7 @@ import (
 
 type PostgresDatabase struct {
 	connectionPool *pgxpool.Pool
-
-	logger logger_interface.LoggerInterface
+	logger         logger_interface.LoggerInterface
 }
 
 type PostgresDatabaseDependencies struct {

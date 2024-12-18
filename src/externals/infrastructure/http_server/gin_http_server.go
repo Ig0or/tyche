@@ -1,31 +1,39 @@
 package http_server
 
 import (
-	"github.com/Ig0or/tyche/src/externals/ports/i_router"
-	"github.com/Ig0or/tyche/src/externals/routers"
+	"github.com/Ig0or/tyche/src/externals/ports/router_interface"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/dig"
 	"os"
 )
 
-func registerRouters(engine *gin.Engine) {
-	var allRouters []i_router.IRouter
+type GinHttpServer struct {
+	engine *gin.Engine
 
-	accountRouter := routers.NewAccountRouter(engine)
-
-	allRouters = append(allRouters, accountRouter)
-
-	for _, router := range allRouters {
-		router.RegisterRoutes()
-	}
-
+	accountRouter router_interface.RouterInterface
 }
 
-func StartHttpServer() {
-	serverPort := os.Getenv("SERVER_PORT")
+type GinHttpServerDependencies struct {
+	dig.In
 
+	AccountRouter router_interface.RouterInterface `name:"AccountRouter"`
+}
+
+func NewGinHttpServer(dependencies GinHttpServerDependencies) {
 	engine := gin.Default()
 
-	registerRouters(engine)
+	httpServer := &GinHttpServer{engine: engine, accountRouter: dependencies.AccountRouter}
 
-	engine.Run(serverPort)
+	httpServer.registerRouters()
+	httpServer.startServer()
+}
+
+func (server *GinHttpServer) registerRouters() {
+	server.accountRouter.RegisterRouter(server.engine)
+}
+
+func (server *GinHttpServer) startServer() {
+	serverPort := os.Getenv("SERVER_PORT")
+
+	server.engine.Run(serverPort)
 }

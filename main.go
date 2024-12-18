@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/Ig0or/tyche/src/externals/infrastructure/http_server"
 	"github.com/Ig0or/tyche/src/externals/infrastructure/ioc"
-	"github.com/Ig0or/tyche/src/externals/ports/i_infrastructure/i_ioc"
+	"github.com/Ig0or/tyche/src/externals/ports/infrastructure/ioc_interface"
 	"github.com/joho/godotenv"
 )
 
@@ -15,15 +15,15 @@ func loadEnv() {
 	}
 }
 
-func loadIoc() i_ioc.IIoc {
+func loadIoc() ioc_interface.IocInterface {
 	iocContainer := ioc.NewDigIoc()
 	iocContainer.LoadProviders()
 
 	return iocContainer
 }
 
-func startApp(iocContainer i_ioc.IIoc) {
-	iocContainer.Invoke(http_server.StartHttpServer)
+func startApp(iocContainer ioc_interface.IocInterface) {
+	iocContainer.Invoke(http_server.NewGinHttpServer)
 
 }
 

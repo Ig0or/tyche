@@ -1,8 +1,14 @@
 package ioc
 
 import (
-	"github.com/Ig0or/tyche/src/adapters/repositories/account"
-	"github.com/Ig0or/tyche/src/application/ports/repositories/account"
+	"github.com/Ig0or/tyche/src/adapters/controllers"
+	"github.com/Ig0or/tyche/src/adapters/ports/controllers_interface"
+	"github.com/Ig0or/tyche/src/adapters/presenters/account"
+	"github.com/Ig0or/tyche/src/adapters/repositories"
+	"github.com/Ig0or/tyche/src/application/ports/presenters_interface/account"
+	"github.com/Ig0or/tyche/src/application/ports/repositories_interface"
+	"github.com/Ig0or/tyche/src/application/ports/use_cases_interface/account"
+	"github.com/Ig0or/tyche/src/application/use_cases/account"
 	"github.com/Ig0or/tyche/src/externals/infrastructure/database"
 	"github.com/Ig0or/tyche/src/externals/infrastructure/logger"
 	"github.com/Ig0or/tyche/src/externals/ports/infrastructure/database_interface"
@@ -43,11 +49,11 @@ func (ioc *DigIoc) LoadProviders() {
 
 }
 
-func (ioc *DigIoc) Invoke(function func()) {
+func (ioc *DigIoc) Invoke(function any) {
 	err := ioc.container.Invoke(function)
 
 	if err != nil {
-		panic("Fail to invoke function inside IOC container: " + err.Error())
+		panic("Fail to invoke main function inside IOC container: " + err.Error())
 	}
 }
 
@@ -56,6 +62,10 @@ func (ioc *DigIoc) createDependencies() []Dependency {
 
 	dependencies = ioc.provideInfrastructureDependencies(dependencies)
 	dependencies = ioc.provideRepositoryDependencies(dependencies)
+	dependencies = ioc.providePresenterDependencies(dependencies)
+	dependencies = ioc.provideUseCaseDependencies(dependencies)
+	dependencies = ioc.provideControllerDependencies(dependencies)
+	dependencies = ioc.provideRouterDependencies(dependencies)
 
 	return dependencies
 }
@@ -91,6 +101,70 @@ func (ioc *DigIoc) provideRepositoryDependencies(dependencies []Dependency) []De
 	}
 
 	for _, dependency := range repositoryDependencies {
+		dependencies = append(dependencies, dependency)
+	}
+
+	return dependencies
+}
+
+func (ioc *DigIoc) providePresenterDependencies(dependencies []Dependency) []Dependency {
+	presenterDependencies := []Dependency{
+		{
+			Implementation: presenters.NewCreateAccountPresenter,
+			Interface:      new(presenters_interface.CreateAccountPresenterInterface),
+			Name:           "CreateAccountPresenter",
+		},
+	}
+
+	for _, dependency := range presenterDependencies {
+		dependencies = append(dependencies, dependency)
+	}
+
+	return dependencies
+}
+
+func (ioc *DigIoc) provideUseCaseDependencies(dependencies []Dependency) []Dependency {
+	useCaseDependencies := []Dependency{
+		{
+			Implementation: use_cases.NewCreateAccountUseCase,
+			Interface:      new(use_cases_interface.CreateAccountUseCaseInterface),
+			Name:           "CreateAccountUseCase",
+		},
+	}
+
+	for _, dependency := range useCaseDependencies {
+		dependencies = append(dependencies, dependency)
+	}
+
+	return dependencies
+}
+
+func (ioc *DigIoc) provideControllerDependencies(dependencies []Dependency) []Dependency {
+	controllerDependencies := []Dependency{
+		{
+			Implementation: controllers.NewAccountController,
+			Interface:      new(controllers_interface.AccountControllerInterface),
+			Name:           "AccountController",
+		},
+	}
+
+	for _, dependency := range controllerDependencies {
+		dependencies = append(dependencies, dependency)
+	}
+
+	return dependencies
+}
+
+func (ioc *DigIoc) provideRouterDependencies(dependencies []Dependency) []Dependency {
+	routerDependencies := []Dependency{
+		{
+			Implementation: routers.NewAccountRouter,
+			Interface:      new(router_interface.RouterInterface),
+			Name:           "AccountRouter",
+		},
+	}
+
+	for _, dependency := range routerDependencies {
 		dependencies = append(dependencies, dependency)
 	}
 
