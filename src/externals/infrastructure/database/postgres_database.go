@@ -2,45 +2,40 @@ package database
 
 import (
 	"context"
-	"github.com/Ig0or/tyche/src/externals/ports/infrastructure/logger_interface"
+	"github.com/Ig0or/tyche/src/domain/custom_errors"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"go.uber.org/dig"
 	"os"
 )
 
 type PostgresDatabase struct {
-	connectionPool *pgxpool.Pool
-	logger         logger_interface.LoggerInterface
 }
 
-type PostgresDatabaseDependencies struct {
-	dig.In
-
-	Logger logger_interface.LoggerInterface `name:"Logger"`
-}
-
-func NewPostgresDatabase(dependencies PostgresDatabaseDependencies) *PostgresDatabase {
-	database := &PostgresDatabase{logger: dependencies.Logger}
-
-	database.openConnection()
+func NewPostgresDatabase() *PostgresDatabase {
+	database := &PostgresDatabase{}
 
 	return database
 }
 
-func (database *PostgresDatabase) openConnection() {
+func (database *PostgresDatabase) openConnection() (*pgxpool.Pool, *custom_errors.BaseCustomError) {
 	connectionString := os.Getenv("POSTGRES_CONNECTION_STRING")
 
 	connectionPool, err := pgxpool.New(context.Background(), connectionString)
 
-	defer connectionPool.Close()
-
 	if err != nil {
-		database.logger.Fatal("Fail to open database connection - Error: " + err.Error())
+		customError := custom_errors.NewInternalServerError("Error while trying to open database connection", err)
+
+		return nil, customError
 	}
 
-	database.connectionPool = connectionPool
+	return connectionPool, nil
 }
 
-func (database *PostgresDatabase) GetConnection() *pgxpool.Pool {
-	return database.connectionPool
+func (database *PostgresDatabase) GetConnection() (*pgxpool.Pool, *custom_errors.BaseCustomError) {
+	connection, err := database.openConnection()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return connection, nil
 }
