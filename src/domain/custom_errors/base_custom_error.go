@@ -1,6 +1,8 @@
 package custom_errors
 
-import "net/http"
+import (
+	"net/http"
+)
 
 type BaseCustomError struct {
 	Message       string      `json:"message"`
@@ -9,7 +11,15 @@ type BaseCustomError struct {
 }
 
 func NewBadRequestError(message string, originalError interface{}) *BaseCustomError {
-	err := &BaseCustomError{Message: message, StatusCode: http.StatusBadRequest, OriginalError: originalError}
+	customError := &BaseCustomError{Message: message, StatusCode: http.StatusBadRequest, OriginalError: originalError}
 
-	return err
+	return customError
+}
+
+func NewInternalServerError(
+	message string, originalError error,
+) *BaseCustomError {
+	customError := &BaseCustomError{Message: message, StatusCode: http.StatusInternalServerError, OriginalError: originalError}
+
+	return customError
 }
