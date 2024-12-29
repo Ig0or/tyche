@@ -2,9 +2,11 @@ package repositories
 
 import (
 	"context"
+	"errors"
 	"github.com/Ig0or/tyche/src/domain/custom_errors"
 	"github.com/Ig0or/tyche/src/domain/models"
 	"github.com/Ig0or/tyche/src/externals/ports/infrastructure/database_interface"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/dig"
 )
@@ -23,26 +25,39 @@ func NewAccountRepository(dependencies AccountRepositoryDependencies) *AccountRe
 	return &AccountRepository{database: dependencies.Database}
 }
 
+func (repository *AccountRepository) handleErrorType(err error) *custom_errors.BaseCustomError {
+	var pgError *pgconn.PgError
+	var customError *custom_errors.BaseCustomError
+
+	if errors.As(err, &pgError) {
+		message := custom_errors.FormatDuplicatedKeyError(pgError)
+		customError = custom_errors.NewBadRequestError(message, err)
+
+	} else {
+		customError = custom_errors.NewInternalServerError("Fail to create account because an unexpected error occurred", err)
+	}
+
+	return customError
+}
+
 func (repository *AccountRepository) createAccount(account *models.AccountModel, connection *pgxpool.Pool) *custom_errors.BaseCustomError {
 	defer connection.Close()
 
 	query := `
 		INSERT INTO accounts 
-		(account_id, email, cpf, password, created_at, updated_at)
+		(account_id, email, cpf, password, created_at)
 		VALUES
-		($1, $2, $3, $4, $5, $6)
+		($1, $2, $3, $4, $5)
 		`
 
-	arguments := []interface{}{account.AccountId, account.Email, account.Cpf, account.Password, account.CreatedAt, account.UpdatedAt}
+	arguments := account.GetArgumentsToInsert()
 
 	_, err := connection.Exec(context.TODO(), query, arguments...)
 
-	// todo: verify error type to send the right message
-
 	if err != nil {
-		customErr := custom_errors.NewInternalServerError("Error while trying to create account", err)
+		customError := repository.handleErrorType(err)
 
-		return customErr
+		return customError
 	}
 
 	return nil
