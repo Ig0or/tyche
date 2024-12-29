@@ -23,8 +23,8 @@ func (presenter *CreateAccountPresenter) FromContextToRequest(context *gin.Conte
 	err := context.ShouldBindJSON(&request)
 
 	if err != nil {
-		messageError := custom_errors.FormatRequestValidationError(err)
-		customError := custom_errors.NewBadRequestError("Validation error. Some fields are invalid", messageError)
+		message := custom_errors.FormatRequestValidationError(err)
+		customError := custom_errors.NewBadRequestError(message, err)
 
 		return nil, customError
 	}
@@ -47,15 +47,27 @@ func (presenter *CreateAccountPresenter) FromRequestToEntity(request *requests.C
 
 	accountId := uuid.New()
 
-	accountEntity := &entities.AccountEntity{AccountId: accountId, Email: request.Email, Cpf: request.Cpf, Password: hashedPassword}
+	currentTime := time.Now().UTC()
+
+	accountEntity := &entities.AccountEntity{
+		AccountId: accountId,
+		Email:     request.Email,
+		Cpf:       request.Cpf,
+		Password:  hashedPassword,
+		CreatedAt: currentTime,
+	}
 
 	return accountEntity, nil
 }
 
 func (presenter *CreateAccountPresenter) FromEntityToModel(entity *entities.AccountEntity) *models.AccountModel {
-	currentTime := time.Now().UTC()
-
-	accountModel := &models.AccountModel{AccountId: entity.AccountId, Email: entity.Email, Cpf: entity.Cpf, Password: entity.Password, CreatedAt: currentTime, UpdatedAt: currentTime}
+	accountModel := &models.AccountModel{
+		AccountId: entity.AccountId,
+		Email:     entity.Email,
+		Cpf:       entity.Cpf,
+		Password:  entity.Password,
+		CreatedAt: entity.CreatedAt,
+	}
 
 	return accountModel
 }

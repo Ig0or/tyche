@@ -12,5 +12,10 @@ type AccountModel struct {
 	Cpf       string
 	Password  string
 	CreatedAt time.Time
-	UpdatedAt time.Time
+}
+
+func (model *AccountModel) GetArgumentsToInsert() []interface{} {
+	arguments := []interface{}{model.AccountId, model.Email, model.Cpf, model.Password, model.CreatedAt}
+
+	return arguments
 }

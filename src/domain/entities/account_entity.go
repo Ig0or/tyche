@@ -4,6 +4,7 @@ import (
 	"github.com/Ig0or/tyche/src/domain/custom_errors"
 	"github.com/google/uuid"
 	"github.com/paemuri/brdoc"
+	"github.com/shopspring/decimal"
 	"golang.org/x/crypto/bcrypt"
 	"time"
 )
@@ -14,9 +15,9 @@ type AccountEntity struct {
 	Email        string
 	Cpf          string
 	Password     string
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
+	Balance      decimal.Decimal
 	Transactions []*TransactionEntity
+	CreatedAt    time.Time
 }
 
 func VerifyValidCpf(cpf string) *custom_errors.BaseCustomError {
