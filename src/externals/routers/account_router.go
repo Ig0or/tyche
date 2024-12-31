@@ -29,7 +29,5 @@ func (router *AccountRouter) RegisterRouter(engine *gin.Engine) {
 }
 
 func (router *AccountRouter) registerRoutes() {
-	router.routerGroup.POST("/", func(c *gin.Context) {
-		c.JSON(200, gin.H{})
-	})
+	router.routerGroup.POST("/", responseHandlerMiddleware(router.controller.CreateAccount))
 }
