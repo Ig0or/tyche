@@ -5,21 +5,19 @@ import (
 )
 
 type BaseCustomError struct {
-	Message       string      `json:"message"`
-	StatusCode    int         `json:"status_code"`
-	OriginalError interface{} `json:"original_error"`
+	Message       string
+	OriginalError error
+	StatusCode    int
 }
 
-func NewBadRequestError(message string, originalError interface{}) *BaseCustomError {
-	customError := &BaseCustomError{Message: message, StatusCode: http.StatusBadRequest, OriginalError: originalError}
+func NewBadRequestError(message string, err error) *BaseCustomError {
+	customError := &BaseCustomError{Message: message, OriginalError: err, StatusCode: http.StatusBadRequest}
 
 	return customError
 }
 
-func NewInternalServerError(
-	message string, originalError error,
-) *BaseCustomError {
-	customError := &BaseCustomError{Message: message, StatusCode: http.StatusInternalServerError, OriginalError: originalError}
+func NewInternalServerError(message string, err error) *BaseCustomError {
+	customError := &BaseCustomError{Message: message, OriginalError: err, StatusCode: http.StatusInternalServerError}
 
 	return customError
 }

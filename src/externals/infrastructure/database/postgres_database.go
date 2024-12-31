@@ -22,7 +22,7 @@ func (database *PostgresDatabase) openConnection() (*pgxpool.Pool, *custom_error
 	connectionPool, err := pgxpool.New(context.Background(), connectionString)
 
 	if err != nil {
-		customError := custom_errors.NewInternalServerError("Error while trying to open database connection", err)
+		customError := custom_errors.NewInternalServerError("Error while trying to open connection in PostgresDatabase.", err)
 
 		return nil, customError
 	}

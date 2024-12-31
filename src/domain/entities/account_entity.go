@@ -24,7 +24,7 @@ func VerifyValidCpf(cpf string) *custom_errors.BaseCustomError {
 	validCpf := brdoc.IsCPF(cpf)
 
 	if !validCpf {
-		customError := custom_errors.NewBadRequestError("This CPF is invalid.", nil)
+		customError := custom_errors.NewBadRequestError("Fail to create account because this CPF is invalid.", nil)
 
 		return customError
 	}
@@ -38,7 +38,7 @@ func HashPassword(password string) (string, *custom_errors.BaseCustomError) {
 	hashedPassword, err := bcrypt.GenerateFromPassword(passwordBytes, bcrypt.DefaultCost)
 
 	if err != nil {
-		customError := custom_errors.NewInternalServerError("Error while trying to hash password.", err)
+		customError := custom_errors.NewInternalServerError("Error while trying to hash password in AccountEntity.", err)
 
 		return "", customError
 	}
