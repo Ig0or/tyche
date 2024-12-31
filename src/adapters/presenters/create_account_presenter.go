@@ -1,12 +1,15 @@
 package presenters
 
 import (
-	"github.com/Ig0or/tyche/src/application/data_types/requests/account"
+	"github.com/Ig0or/tyche/src/application/data_types/dtos"
+	"github.com/Ig0or/tyche/src/application/data_types/requests"
+	"github.com/Ig0or/tyche/src/application/data_types/responses"
 	"github.com/Ig0or/tyche/src/domain/custom_errors"
 	"github.com/Ig0or/tyche/src/domain/entities"
 	"github.com/Ig0or/tyche/src/domain/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"net/http"
 	"time"
 )
 
@@ -33,16 +36,16 @@ func (presenter *CreateAccountPresenter) FromContextToRequest(context *gin.Conte
 }
 
 func (presenter *CreateAccountPresenter) FromRequestToEntity(request *requests.CreateAccountRequest) (*entities.AccountEntity, *custom_errors.BaseCustomError) {
-	err := entities.VerifyValidCpf(request.Cpf)
+	customError := entities.VerifyValidCpf(request.Cpf)
 
-	if err != nil {
-		return nil, err
+	if customError != nil {
+		return nil, customError
 	}
 
-	hashedPassword, err := entities.HashPassword(request.Password)
+	hashedPassword, customError := entities.HashPassword(request.Password)
 
-	if err != nil {
-		return nil, err
+	if customError != nil {
+		return nil, customError
 	}
 
 	accountId := uuid.New()
@@ -70,4 +73,34 @@ func (presenter *CreateAccountPresenter) FromEntityToModel(entity *entities.Acco
 	}
 
 	return accountModel
+}
+
+func (presenter *CreateAccountPresenter) FromModelToDto(accountModel *models.AccountModel, transactionModel *models.TransactionModel) *dtos.AccountDto {
+	accountDto := &dtos.AccountDto{
+		AccountId: accountModel.AccountId,
+		Email:     accountModel.Email,
+		Cpf:       accountModel.Cpf,
+		Password:  accountModel.Password,
+		Balance:   transactionModel.Amount,
+		CreatedAt: accountModel.CreatedAt,
+	}
+
+	return accountDto
+}
+
+func (presenter *CreateAccountPresenter) FromDtoToResponse(dto *dtos.AccountDto) *responses.BaseApiResponse {
+	balanceInFloat, _ := dto.Balance.Float64()
+
+	accountResponse := &responses.CreateAccountResponse{
+		AccountId: dto.AccountId,
+		Balance:   balanceInFloat,
+	}
+
+	apiResponse := &responses.BaseApiResponse{
+		Payload:    accountResponse,
+		Success:    true,
+		StatusCode: http.StatusCreated,
+	}
+
+	return apiResponse
 }
