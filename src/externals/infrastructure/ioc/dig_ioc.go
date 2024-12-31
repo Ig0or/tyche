@@ -3,12 +3,12 @@ package ioc
 import (
 	"github.com/Ig0or/tyche/src/adapters/controllers"
 	"github.com/Ig0or/tyche/src/adapters/ports/controllers_interface"
-	"github.com/Ig0or/tyche/src/adapters/presenters/account"
+	"github.com/Ig0or/tyche/src/adapters/presenters"
 	"github.com/Ig0or/tyche/src/adapters/repositories"
-	"github.com/Ig0or/tyche/src/application/ports/presenters_interface/account"
+	"github.com/Ig0or/tyche/src/application/ports/presenters_interface"
 	"github.com/Ig0or/tyche/src/application/ports/repositories_interface"
-	"github.com/Ig0or/tyche/src/application/ports/use_cases_interface/account"
-	"github.com/Ig0or/tyche/src/application/use_cases/account"
+	"github.com/Ig0or/tyche/src/application/ports/use_cases_interface"
+	"github.com/Ig0or/tyche/src/application/use_cases"
 	"github.com/Ig0or/tyche/src/externals/infrastructure/database"
 	"github.com/Ig0or/tyche/src/externals/infrastructure/logger"
 	"github.com/Ig0or/tyche/src/externals/ports/infrastructure/database_interface"
@@ -98,6 +98,11 @@ func (ioc *DigIoc) provideRepositoryDependencies(dependencies []Dependency) []De
 			Interface:      new(repositories_interface.AccountRepositoryInterface),
 			Name:           "AccountRepository",
 		},
+		{
+			Implementation: repositories.NewTransactionRepository,
+			Interface:      new(repositories_interface.TransactionRepositoryInterface),
+			Name:           "TransactionRepository",
+		},
 	}
 
 	for _, dependency := range repositoryDependencies {
@@ -113,6 +118,11 @@ func (ioc *DigIoc) providePresenterDependencies(dependencies []Dependency) []Dep
 			Implementation: presenters.NewCreateAccountPresenter,
 			Interface:      new(presenters_interface.CreateAccountPresenterInterface),
 			Name:           "CreateAccountPresenter",
+		},
+		{
+			Implementation: presenters.NewTransactionPresenter,
+			Interface:      new(presenters_interface.TransactionPresenterInterface),
+			Name:           "TransactionPresenter",
 		},
 	}
 
