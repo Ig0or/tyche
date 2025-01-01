@@ -8,4 +8,5 @@ import (
 
 type AccountControllerInterface interface {
 	CreateAccount(context *gin.Context) (*responses.BaseApiResponse, *custom_errors.BaseCustomError)
+	GetAccountToken(context *gin.Context) (*responses.BaseApiResponse, *custom_errors.BaseCustomError)
 }

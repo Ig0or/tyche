@@ -11,24 +11,30 @@ import (
 )
 
 type AccountController struct {
-	createAccountPresenter presenters_interface.CreateAccountPresenterInterface
-	createAccountUseCase   use_cases_interface.CreateAccountUseCaseInterface
-	logger                 logger_interface.LoggerInterface
+	logger                   logger_interface.LoggerInterface
+	createAccountPresenter   presenters_interface.CreateAccountPresenterInterface
+	getAccountTokenPresenter presenters_interface.GetAccountTokenPresenterInterface
+	createAccountUseCase     use_cases_interface.CreateAccountUseCaseInterface
+	getAccountTokenUseCase   use_cases_interface.GetAccountTokenUseCaseInterface
 }
 
 type AccountControllerDependencies struct {
 	dig.In
 
-	CreateAccountPresenter presenters_interface.CreateAccountPresenterInterface `name:"CreateAccountPresenter"`
-	CreateAccountUseCase   use_cases_interface.CreateAccountUseCaseInterface    `name:"CreateAccountUseCase"`
-	Logger                 logger_interface.LoggerInterface                     `name:"Logger"`
+	Logger                   logger_interface.LoggerInterface                       `name:"Logger"`
+	CreateAccountPresenter   presenters_interface.CreateAccountPresenterInterface   `name:"CreateAccountPresenter"`
+	GetAccountTokenPresenter presenters_interface.GetAccountTokenPresenterInterface `name:"GetAccountTokenPresenter"`
+	CreateAccountUseCase     use_cases_interface.CreateAccountUseCaseInterface      `name:"CreateAccountUseCase"`
+	GetAccountTokenUseCase   use_cases_interface.GetAccountTokenUseCaseInterface    `name:"GetAccountTokenUseCase"`
 }
 
 func NewAccountController(dependencies AccountControllerDependencies) *AccountController {
 	controller := &AccountController{
-		createAccountPresenter: dependencies.CreateAccountPresenter,
-		createAccountUseCase:   dependencies.CreateAccountUseCase,
-		logger:                 dependencies.Logger,
+		logger:                   dependencies.Logger,
+		createAccountPresenter:   dependencies.CreateAccountPresenter,
+		getAccountTokenPresenter: dependencies.GetAccountTokenPresenter,
+		createAccountUseCase:     dependencies.CreateAccountUseCase,
+		getAccountTokenUseCase:   dependencies.GetAccountTokenUseCase,
 	}
 
 	return controller
@@ -43,7 +49,7 @@ func (controller *AccountController) CreateAccount(context *gin.Context) (*respo
 		return nil, customError
 	}
 
-	accountDto, customError := controller.createAccountUseCase.CreateAccount(request)
+	dto, customError := controller.createAccountUseCase.CreateAccount(request)
 
 	if customError != nil {
 		controller.logger.Error(customError.Message, customError.OriginalError)
@@ -51,7 +57,29 @@ func (controller *AccountController) CreateAccount(context *gin.Context) (*respo
 		return nil, customError
 	}
 
-	response := controller.createAccountPresenter.FromDtoToResponse(accountDto)
+	response := controller.createAccountPresenter.FromDtoToResponse(dto)
+
+	return response, nil
+}
+
+func (controller *AccountController) GetAccountToken(context *gin.Context) (*responses.BaseApiResponse, *custom_errors.BaseCustomError) {
+	request, customError := controller.getAccountTokenPresenter.FromContextToRequest(context)
+
+	if customError != nil {
+		controller.logger.Error(customError.Message, customError.OriginalError)
+
+		return nil, customError
+	}
+
+	dto, customError := controller.getAccountTokenUseCase.GetAccountToken(request)
+
+	if customError != nil {
+		controller.logger.Error(customError.Message, customError.OriginalError)
+
+		return nil, customError
+	}
+
+	response := controller.getAccountTokenPresenter.FromDtoToResponse(dto)
 
 	return response, nil
 }

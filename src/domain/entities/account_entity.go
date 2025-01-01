@@ -10,14 +10,29 @@ import (
 )
 
 type AccountEntity struct {
-	ID           int
-	AccountId    uuid.UUID
-	Email        string
-	Cpf          string
-	Password     string
-	Balance      decimal.Decimal
-	Transactions []*TransactionEntity
-	CreatedAt    time.Time
+	ID             int
+	AccountId      uuid.UUID
+	Email          string
+	Cpf            string
+	HashedPassword string
+	CreatedAt      time.Time
+	Balance        decimal.Decimal
+	Transactions   []*TransactionEntity
+}
+
+func (entity *AccountEntity) ValidatePassword(password string) *custom_errors.BaseCustomError {
+	passwordBytes := []byte(password)
+	hashedPasswordBytes := []byte(entity.HashedPassword)
+
+	err := bcrypt.CompareHashAndPassword(hashedPasswordBytes, passwordBytes)
+
+	if err != nil {
+		customError := custom_errors.NewBadRequestError("Fail to get account token because the email or password is incorrect.", err)
+
+		return customError
+	}
+
+	return nil
 }
 
 func VerifyValidCpf(cpf string) *custom_errors.BaseCustomError {

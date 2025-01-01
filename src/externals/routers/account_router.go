@@ -30,4 +30,5 @@ func (router *AccountRouter) RegisterRouter(engine *gin.Engine) {
 
 func (router *AccountRouter) registerRoutes() {
 	router.routerGroup.POST("/", responseHandlerMiddleware(router.controller.CreateAccount))
+	router.routerGroup.POST("/token", responseHandlerMiddleware(router.controller.GetAccountToken))
 }
