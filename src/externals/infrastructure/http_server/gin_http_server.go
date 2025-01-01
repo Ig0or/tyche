@@ -1,7 +1,7 @@
 package http_server
 
 import (
-	"github.com/Ig0or/tyche/src/externals/ports/router_interface"
+	"github.com/Ig0or/tyche/src/externals/ports/routers_interface"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/dig"
 	"os"
@@ -10,13 +10,13 @@ import (
 type GinHttpServer struct {
 	engine *gin.Engine
 
-	accountRouter router_interface.RouterInterface
+	accountRouter routers_interface.RouterInterface
 }
 
 type GinHttpServerDependencies struct {
 	dig.In
 
-	AccountRouter router_interface.RouterInterface `name:"AccountRouter"`
+	AccountRouter routers_interface.RouterInterface `name:"AccountRouter"`
 }
 
 func NewGinHttpServer(dependencies GinHttpServerDependencies) {
