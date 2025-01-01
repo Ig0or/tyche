@@ -7,4 +7,5 @@ import (
 
 type TokenServiceInterface interface {
 	GenerateToken(claims jwt.MapClaims) (string, *custom_errors.BaseCustomError)
+	ValidateToken(accessTokenString string) (jwt.MapClaims, *custom_errors.BaseCustomError)
 }

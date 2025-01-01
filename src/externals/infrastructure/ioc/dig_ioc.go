@@ -13,7 +13,7 @@ import (
 	"github.com/Ig0or/tyche/src/externals/infrastructure/logger"
 	"github.com/Ig0or/tyche/src/externals/ports/infrastructure/database_interface"
 	"github.com/Ig0or/tyche/src/externals/ports/infrastructure/logger_interface"
-	"github.com/Ig0or/tyche/src/externals/ports/router_interface"
+	"github.com/Ig0or/tyche/src/externals/ports/routers_interface"
 	"github.com/Ig0or/tyche/src/externals/ports/services_interface"
 	"github.com/Ig0or/tyche/src/externals/routers"
 	"github.com/Ig0or/tyche/src/externals/services"
@@ -202,8 +202,13 @@ func (ioc *DigIoc) provideControllerDependencies(dependencies []Dependency) []De
 func (ioc *DigIoc) provideRouterDependencies(dependencies []Dependency) []Dependency {
 	routerDependencies := []Dependency{
 		{
+			Implementation: routers.NewMiddleware,
+			Interface:      new(routers_interface.MiddlewareInterface),
+			Name:           "Middleware",
+		},
+		{
 			Implementation: routers.NewAccountRouter,
-			Interface:      new(router_interface.RouterInterface),
+			Interface:      new(routers_interface.RouterInterface),
 			Name:           "AccountRouter",
 		},
 	}

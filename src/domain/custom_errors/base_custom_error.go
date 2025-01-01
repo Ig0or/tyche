@@ -21,3 +21,9 @@ func NewInternalServerError(message string, err error) *BaseCustomError {
 
 	return customError
 }
+
+func NewUnauthorizedError(message string, err error) *BaseCustomError {
+	customError := &BaseCustomError{Message: message, OriginalError: err, StatusCode: http.StatusUnauthorized}
+
+	return customError
+}

@@ -1,4 +1,4 @@
-package router_interface
+package routers_interface
 
 import "github.com/gin-gonic/gin"
 
