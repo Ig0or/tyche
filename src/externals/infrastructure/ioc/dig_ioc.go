@@ -14,7 +14,9 @@ import (
 	"github.com/Ig0or/tyche/src/externals/ports/infrastructure/database_interface"
 	"github.com/Ig0or/tyche/src/externals/ports/infrastructure/logger_interface"
 	"github.com/Ig0or/tyche/src/externals/ports/router_interface"
+	"github.com/Ig0or/tyche/src/externals/ports/services_interface"
 	"github.com/Ig0or/tyche/src/externals/routers"
+	"github.com/Ig0or/tyche/src/externals/services"
 	"go.uber.org/dig"
 )
 
@@ -63,6 +65,7 @@ func (ioc *DigIoc) createDependencies() []Dependency {
 	dependencies = ioc.provideInfrastructureDependencies(dependencies)
 	dependencies = ioc.provideRepositoryDependencies(dependencies)
 	dependencies = ioc.providePresenterDependencies(dependencies)
+	dependencies = ioc.provideServicesDependencies(dependencies)
 	dependencies = ioc.provideUseCaseDependencies(dependencies)
 	dependencies = ioc.provideControllerDependencies(dependencies)
 	dependencies = ioc.provideRouterDependencies(dependencies)
@@ -124,9 +127,35 @@ func (ioc *DigIoc) providePresenterDependencies(dependencies []Dependency) []Dep
 			Interface:      new(presenters_interface.TransactionPresenterInterface),
 			Name:           "TransactionPresenter",
 		},
+		{
+			Implementation: presenters.NewAccountPresenter,
+			Interface:      new(presenters_interface.AccountPresenterInterface),
+			Name:           "AccountPresenter",
+		},
+		{
+			Implementation: presenters.NewGetAccountTokenPresenter,
+			Interface:      new(presenters_interface.GetAccountTokenPresenterInterface),
+			Name:           "GetAccountTokenPresenter",
+		},
 	}
 
 	for _, dependency := range presenterDependencies {
+		dependencies = append(dependencies, dependency)
+	}
+
+	return dependencies
+}
+
+func (ioc *DigIoc) provideServicesDependencies(dependencies []Dependency) []Dependency {
+	servicesDependencies := []Dependency{
+		{
+			Implementation: services.NewJwtTokenService,
+			Interface:      new(services_interface.TokenServiceInterface),
+			Name:           "TokenService",
+		},
+	}
+
+	for _, dependency := range servicesDependencies {
 		dependencies = append(dependencies, dependency)
 	}
 
@@ -139,6 +168,11 @@ func (ioc *DigIoc) provideUseCaseDependencies(dependencies []Dependency) []Depen
 			Implementation: use_cases.NewCreateAccountUseCase,
 			Interface:      new(use_cases_interface.CreateAccountUseCaseInterface),
 			Name:           "CreateAccountUseCase",
+		},
+		{
+			Implementation: use_cases.NewGetAccountTokenUseCase,
+			Interface:      new(use_cases_interface.GetAccountTokenUseCaseInterface),
+			Name:           "GetAccountTokenUseCase",
 		},
 	}
 
