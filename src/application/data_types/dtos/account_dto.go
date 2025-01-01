@@ -7,12 +7,12 @@ import (
 )
 
 type AccountDto struct {
-	ID           int
-	AccountId    uuid.UUID
-	Email        string
-	Cpf          string
-	Password     string
-	Balance      decimal.Decimal
-	Transactions []*TransactionDto
-	CreatedAt    time.Time
+	ID             int
+	AccountId      uuid.UUID
+	Email          string
+	Cpf            string
+	HashedPassword string
+	Balance        decimal.Decimal
+	Transactions   []*TransactionDto
+	CreatedAt      time.Time
 }

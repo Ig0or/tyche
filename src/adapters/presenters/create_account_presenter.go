@@ -53,11 +53,11 @@ func (presenter *CreateAccountPresenter) FromRequestToEntity(request *requests.C
 	currentTime := time.Now().UTC()
 
 	accountEntity := &entities.AccountEntity{
-		AccountId: accountId,
-		Email:     request.Email,
-		Cpf:       request.Cpf,
-		Password:  hashedPassword,
-		CreatedAt: currentTime,
+		AccountId:      accountId,
+		Email:          request.Email,
+		Cpf:            request.Cpf,
+		HashedPassword: hashedPassword,
+		CreatedAt:      currentTime,
 	}
 
 	return accountEntity, nil
@@ -65,11 +65,11 @@ func (presenter *CreateAccountPresenter) FromRequestToEntity(request *requests.C
 
 func (presenter *CreateAccountPresenter) FromEntityToModel(entity *entities.AccountEntity) *models.AccountModel {
 	accountModel := &models.AccountModel{
-		AccountId: entity.AccountId,
-		Email:     entity.Email,
-		Cpf:       entity.Cpf,
-		Password:  entity.Password,
-		CreatedAt: entity.CreatedAt,
+		AccountId:      entity.AccountId,
+		Email:          entity.Email,
+		Cpf:            entity.Cpf,
+		HashedPassword: entity.HashedPassword,
+		CreatedAt:      entity.CreatedAt,
 	}
 
 	return accountModel
@@ -77,12 +77,12 @@ func (presenter *CreateAccountPresenter) FromEntityToModel(entity *entities.Acco
 
 func (presenter *CreateAccountPresenter) FromModelToDto(accountModel *models.AccountModel, transactionModel *models.TransactionModel) *dtos.AccountDto {
 	accountDto := &dtos.AccountDto{
-		AccountId: accountModel.AccountId,
-		Email:     accountModel.Email,
-		Cpf:       accountModel.Cpf,
-		Password:  accountModel.Password,
-		Balance:   transactionModel.Amount,
-		CreatedAt: accountModel.CreatedAt,
+		AccountId:      accountModel.AccountId,
+		Email:          accountModel.Email,
+		Cpf:            accountModel.Cpf,
+		HashedPassword: accountModel.HashedPassword,
+		Balance:        transactionModel.Amount,
+		CreatedAt:      accountModel.CreatedAt,
 	}
 
 	return accountDto

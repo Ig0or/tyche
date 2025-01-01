@@ -23,7 +23,9 @@ type TransactionRepositoryDependencies struct {
 }
 
 func NewTransactionRepository(dependencies TransactionRepositoryDependencies) *TransactionRepository {
-	return &TransactionRepository{database: dependencies.Database, logger: dependencies.Logger}
+	transactionRepository := &TransactionRepository{database: dependencies.Database, logger: dependencies.Logger}
+
+	return transactionRepository
 }
 
 func (repository *TransactionRepository) createTransaction(transaction *models.TransactionModel, connection *pgxpool.Pool) *custom_errors.BaseCustomError {

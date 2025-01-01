@@ -19,12 +19,12 @@ func NewLogger() *Logger {
 	infoPrefix := "\033[32m[INFO]:\033[0m "
 	errorPrefix := "\033[31m[ERROR]:\033[0m "
 
-	Logger := &Logger{
+	logger := &Logger{
 		info: log.New(writer, infoPrefix, flags),
 		err:  log.New(writer, errorPrefix, flags),
 	}
 
-	return Logger
+	return logger
 }
 
 func (logger *Logger) Info(format string, values ...interface{}) {
