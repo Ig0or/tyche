@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/Ig0or/tyche/src/application/data_types/responses"
 	"github.com/Ig0or/tyche/src/domain/custom_errors"
+	"github.com/Ig0or/tyche/src/externals/ports/infrastructure/logger_interface"
 	"github.com/Ig0or/tyche/src/externals/ports/routers_interface"
 	"github.com/Ig0or/tyche/src/externals/ports/services_interface"
 	"github.com/gin-gonic/gin"
@@ -14,25 +15,30 @@ import (
 )
 
 type Middleware struct {
+	logger       logger_interface.LoggerInterface
 	tokenService services_interface.TokenServiceInterface
 }
 
 type MiddlewareDependencies struct {
 	dig.In
 
+	Logger       logger_interface.LoggerInterface         `name:"Logger"`
 	TokenService services_interface.TokenServiceInterface `name:"TokenService"`
 }
 
 func NewMiddleware(dependencies MiddlewareDependencies) *Middleware {
 	middleware := &Middleware{
+		logger:       dependencies.Logger,
 		tokenService: dependencies.TokenService,
 	}
 
 	return middleware
 }
 
-func buildErrorResponse(customError *custom_errors.BaseCustomError) *responses.BaseApiResponse {
+func (middleware *Middleware) buildErrorResponse(customError *custom_errors.BaseCustomError) *responses.BaseApiResponse {
 	responseMessage := customError.Message
+
+	middleware.logger.Error(responseMessage, customError.OriginalError)
 
 	if customError.StatusCode == http.StatusInternalServerError {
 		responseMessage = "An unexpected error occurred."
@@ -51,7 +57,7 @@ func (middleware *Middleware) processControllerFunction(function routers_interfa
 	response, customError := function(context)
 
 	if customError != nil {
-		response = buildErrorResponse(customError)
+		response = middleware.buildErrorResponse(customError)
 	}
 
 	context.JSON(response.StatusCode, response)
@@ -76,7 +82,7 @@ func (middleware *Middleware) verifyAccountId(context *gin.Context, claims jwt.M
 }
 
 func (middleware *Middleware) abortRequest(context *gin.Context, customError *custom_errors.BaseCustomError) {
-	response := buildErrorResponse(customError)
+	response := middleware.buildErrorResponse(customError)
 
 	context.JSON(response.StatusCode, response)
 	context.Abort()
