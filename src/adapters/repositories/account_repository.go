@@ -3,6 +3,7 @@ package repositories
 import (
 	"context"
 	"errors"
+	"github.com/Ig0or/tyche/src/application/ports/presenters_interface"
 	"github.com/Ig0or/tyche/src/domain/custom_errors"
 	"github.com/Ig0or/tyche/src/domain/models"
 	"github.com/Ig0or/tyche/src/externals/ports/infrastructure/database_interface"
@@ -13,19 +14,27 @@ import (
 )
 
 type AccountRepository struct {
-	database database_interface.DatabaseInterface
-	logger   logger_interface.LoggerInterface
+	database         database_interface.DatabaseInterface
+	logger           logger_interface.LoggerInterface
+	accountPresenter presenters_interface.AccountPresenterInterface
 }
 
 type AccountRepositoryDependencies struct {
 	dig.In
 
-	Database database_interface.DatabaseInterface `name:"PostgresDatabase"`
-	Logger   logger_interface.LoggerInterface     `name:"Logger"`
+	Database         database_interface.DatabaseInterface           `name:"PostgresDatabase"`
+	Logger           logger_interface.LoggerInterface               `name:"Logger"`
+	AccountPresenter presenters_interface.AccountPresenterInterface `name:"AccountPresenter"`
 }
 
 func NewAccountRepository(dependencies AccountRepositoryDependencies) *AccountRepository {
-	return &AccountRepository{database: dependencies.Database, logger: dependencies.Logger}
+	accountRepository := &AccountRepository{
+		database:         dependencies.Database,
+		logger:           dependencies.Logger,
+		accountPresenter: dependencies.AccountPresenter,
+	}
+
+	return accountRepository
 }
 
 func (repository *AccountRepository) handleErrorType(err error) *custom_errors.BaseCustomError {
@@ -37,7 +46,7 @@ func (repository *AccountRepository) handleErrorType(err error) *custom_errors.B
 		customError = custom_errors.NewBadRequestError(message, err)
 
 	} else {
-		customError = custom_errors.NewInternalServerError("Error while trying to create account in AccountRepository", err)
+		customError = custom_errors.NewInternalServerError("Error while trying to access repository in AccountRepository", err)
 	}
 
 	return customError
@@ -48,7 +57,7 @@ func (repository *AccountRepository) createAccount(account *models.AccountModel,
 
 	query := `
 		INSERT INTO accounts 
-		(account_id, email, cpf, password, created_at)
+		(account_id, email, cpf, hashed_password, created_at)
 		VALUES
 		($1, $2, $3, $4, $5)
 		`
@@ -82,4 +91,42 @@ func (repository *AccountRepository) CreateAccount(account *models.AccountModel)
 	repository.logger.Info("New account created successfully. AccountId: %s", account.AccountId)
 
 	return nil
+}
+
+func (repository *AccountRepository) getAccountByEmail(email string, connection *pgxpool.Pool) (*models.AccountModel, *custom_errors.BaseCustomError) {
+	query := `SELECT * FROM accounts WHERE email = $1`
+
+	rows, err := connection.Query(context.TODO(), query, email)
+
+	defer rows.Close()
+
+	if err != nil {
+		customError := repository.handleErrorType(err)
+
+		return nil, customError
+	}
+
+	accountModel, customError := repository.accountPresenter.FromDatabaseResultToModel(rows)
+
+	if customError != nil {
+		return nil, customError
+	}
+
+	return accountModel, nil
+}
+
+func (repository *AccountRepository) GetAccountByEmail(email string) (*models.AccountModel, *custom_errors.BaseCustomError) {
+	connection, customError := repository.database.GetConnection()
+
+	if customError != nil {
+		return nil, customError
+	}
+
+	accountModel, customError := repository.getAccountByEmail(email, connection)
+
+	if customError != nil {
+		return nil, customError
+	}
+
+	return accountModel, nil
 }
