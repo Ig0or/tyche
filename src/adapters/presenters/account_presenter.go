@@ -29,7 +29,7 @@ func (presenter *AccountPresenter) FromDatabaseResultToModel(rows pgx.Rows) (*mo
 	)
 
 	if err != nil {
-		customError := custom_errors.NewBadRequestError("Fail to get account token because the email or password is incorrect.", err)
+		customError := custom_errors.NewBadRequestError("Fail to get account because this account doesnt exist.", err)
 
 		return nil, customError
 	}

@@ -3,11 +3,13 @@ package repositories
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/Ig0or/tyche/src/application/ports/presenters_interface"
 	"github.com/Ig0or/tyche/src/domain/custom_errors"
 	"github.com/Ig0or/tyche/src/domain/models"
 	"github.com/Ig0or/tyche/src/externals/ports/infrastructure/database_interface"
 	"github.com/Ig0or/tyche/src/externals/ports/infrastructure/logger_interface"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/dig"
@@ -46,7 +48,7 @@ func (repository *AccountRepository) handleErrorType(err error) *custom_errors.B
 		customError = custom_errors.NewBadRequestError(message, err)
 
 	} else {
-		customError = custom_errors.NewInternalServerError("Error while trying to access repository in AccountRepository", err)
+		customError = custom_errors.NewInternalServerError("Error while trying to access repository in AccountRepository.", err)
 	}
 
 	return customError
@@ -93,10 +95,10 @@ func (repository *AccountRepository) CreateAccount(account *models.AccountModel)
 	return nil
 }
 
-func (repository *AccountRepository) getAccountByEmail(email string, connection *pgxpool.Pool) (*models.AccountModel, *custom_errors.BaseCustomError) {
-	query := `SELECT * FROM accounts WHERE email = $1`
+func (repository *AccountRepository) getAccount(paramType string, param interface{}, connection *pgxpool.Pool) (*models.AccountModel, *custom_errors.BaseCustomError) {
+	query := fmt.Sprintf(`SELECT * FROM accounts WHERE %s = $1`, paramType)
 
-	rows, err := connection.Query(context.TODO(), query, email)
+	rows, err := connection.Query(context.TODO(), query, param)
 
 	defer rows.Close()
 
@@ -122,7 +124,23 @@ func (repository *AccountRepository) GetAccountByEmail(email string) (*models.Ac
 		return nil, customError
 	}
 
-	accountModel, customError := repository.getAccountByEmail(email, connection)
+	accountModel, customError := repository.getAccount("email", email, connection)
+
+	if customError != nil {
+		return nil, customError
+	}
+
+	return accountModel, nil
+}
+
+func (repository *AccountRepository) GetAccountByAccountId(accountId uuid.UUID) (*models.AccountModel, *custom_errors.BaseCustomError) {
+	connection, customError := repository.database.GetConnection()
+
+	if customError != nil {
+		return nil, customError
+	}
+
+	accountModel, customError := repository.getAccount("account_id", accountId, connection)
 
 	if customError != nil {
 		return nil, customError
