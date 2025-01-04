@@ -8,23 +8,23 @@ import (
 )
 
 type TransactionModel struct {
-	ID          int
-	AccountId   uuid.UUID
-	Operation   enums.Operation
-	Type        enums.Type
-	Amount      decimal.Decimal
-	ToAccountId uuid.UUID
-	CreatedAt   time.Time
+	ID                   int
+	AccountId            uuid.UUID
+	Operation            enums.Operation
+	Type                 enums.Type
+	Amount               decimal.Decimal
+	DestinationAccountId uuid.UUID
+	CreatedAt            time.Time
 }
 
 func (model *TransactionModel) GetArgumentsToInsert() []interface{} {
-	var toAccountId interface{} = model.ToAccountId
+	var destinationAccountId interface{} = model.DestinationAccountId
 
-	if model.ToAccountId == uuid.Nil {
-		toAccountId = nil
+	if model.DestinationAccountId == uuid.Nil {
+		destinationAccountId = nil
 	}
 
-	arguments := []interface{}{model.AccountId, model.Operation, model.Type, model.Amount, toAccountId, model.CreatedAt}
+	arguments := []interface{}{model.AccountId, model.Operation, model.Type, model.Amount, destinationAccountId, model.CreatedAt}
 
 	return arguments
 }

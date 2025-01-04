@@ -8,11 +8,11 @@ import (
 )
 
 type TransactionEntity struct {
-	ID          int
-	AccountId   uuid.UUID
-	Operation   enums.Operation
-	Type        enums.Type
-	Amount      decimal.Decimal
-	ToAccountId uuid.UUID
-	CreatedAt   time.Time
+	ID                   int
+	AccountId            uuid.UUID
+	Operation            enums.Operation
+	Type                 enums.Type
+	Amount               decimal.Decimal
+	DestinationAccountId uuid.UUID
+	CreatedAt            time.Time
 }
