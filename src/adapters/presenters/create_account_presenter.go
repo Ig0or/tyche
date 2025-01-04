@@ -63,6 +63,7 @@ func (presenter *CreateAccountPresenter) FromRequestToEntity(request *requests.C
 	return accountEntity, nil
 }
 
+// TODO move to account presenter
 func (presenter *CreateAccountPresenter) FromEntityToModel(entity *entities.AccountEntity) *models.AccountModel {
 	accountModel := &models.AccountModel{
 		AccountId:      entity.AccountId,
@@ -92,7 +93,7 @@ func (presenter *CreateAccountPresenter) FromDtoToResponse(dto *dtos.AccountDto)
 	balanceInFloat, _ := dto.Balance.Float64()
 
 	accountResponse := &responses.CreateAccountResponse{
-		AccountId: dto.AccountId,
+		AccountId: dto.AccountId.String(),
 		Balance:   balanceInFloat,
 	}
 

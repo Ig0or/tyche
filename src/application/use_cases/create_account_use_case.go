@@ -6,6 +6,7 @@ import (
 	"github.com/Ig0or/tyche/src/application/ports/presenters_interface"
 	"github.com/Ig0or/tyche/src/application/ports/repositories_interface"
 	"github.com/Ig0or/tyche/src/domain/custom_errors"
+	"github.com/Ig0or/tyche/src/domain/enums"
 	"github.com/Ig0or/tyche/src/domain/models"
 	"github.com/google/uuid"
 	"go.uber.org/dig"
@@ -57,7 +58,7 @@ func (useCase *CreateAccountUseCase) createAccount(request *requests.CreateAccou
 }
 
 func (useCase *CreateAccountUseCase) createTransaction(accountId uuid.UUID, amount float64) (*models.TransactionModel, *custom_errors.BaseCustomError) {
-	transactionEntity := useCase.transactionPresenter.CreateInitialBalanceTransactionEntity(accountId, amount)
+	transactionEntity := useCase.transactionPresenter.FromRequestToEntity(accountId, enums.Deposit, enums.CashIn, amount, uuid.Nil)
 
 	transactionModel := useCase.transactionPresenter.FromEntityToModel(transactionEntity)
 
