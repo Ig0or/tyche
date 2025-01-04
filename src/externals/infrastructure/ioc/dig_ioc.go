@@ -137,6 +137,11 @@ func (ioc *DigIoc) providePresenterDependencies(dependencies []Dependency) []Dep
 			Interface:      new(presenters_interface.GetAccountTokenPresenterInterface),
 			Name:           "GetAccountTokenPresenter",
 		},
+		{
+			Implementation: presenters.NewCreateTransactionPresenter,
+			Interface:      new(presenters_interface.CreateTransactionPresenterInterface),
+			Name:           "CreateTransactionPresenter",
+		},
 	}
 
 	for _, dependency := range presenterDependencies {
@@ -174,6 +179,11 @@ func (ioc *DigIoc) provideUseCaseDependencies(dependencies []Dependency) []Depen
 			Interface:      new(use_cases_interface.GetAccountTokenUseCaseInterface),
 			Name:           "GetAccountTokenUseCase",
 		},
+		{
+			Implementation: use_cases.NewCreateDepositTransactionUseCase,
+			Interface:      new(use_cases_interface.CreateTransactionUseCaseInterface),
+			Name:           "CreateDepositTransactionUseCase",
+		},
 	}
 
 	for _, dependency := range useCaseDependencies {
@@ -189,6 +199,11 @@ func (ioc *DigIoc) provideControllerDependencies(dependencies []Dependency) []De
 			Implementation: controllers.NewAccountController,
 			Interface:      new(controllers_interface.AccountControllerInterface),
 			Name:           "AccountController",
+		},
+		{
+			Implementation: controllers.NewTransactionController,
+			Interface:      new(controllers_interface.TransactionControllerInterface),
+			Name:           "TransactionController",
 		},
 	}
 
@@ -210,6 +225,11 @@ func (ioc *DigIoc) provideRouterDependencies(dependencies []Dependency) []Depend
 			Implementation: routers.NewAccountRouter,
 			Interface:      new(routers_interface.RouterInterface),
 			Name:           "AccountRouter",
+		},
+		{
+			Implementation: routers.NewTransactionRouter,
+			Interface:      new(routers_interface.RouterInterface),
+			Name:           "TransactionRouter",
 		},
 	}
 
